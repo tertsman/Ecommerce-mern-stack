@@ -1,0 +1,28 @@
+:root {
+  /* font-family: "Poppins", serif; */
+  font-family: "Lato", serif;
+  /* line-height: 1.5; */
+  /* font-weight: 400; */
+
+  /* color-scheme: light dark; */
+  color: rgba(28, 25, 25, 0.87);
+  /* background-color: #242424; */
+
+  /* font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; */
+}
+
+*{
+  font-family: "Lato", serif;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0;
+  list-style-type: none;
+  text-decoration: none;
+}
