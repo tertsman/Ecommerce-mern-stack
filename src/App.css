@@ -7,9 +7,7 @@
   width: 100%;
   list-style-type: none;
   text-decoration: none;
-  /* margin: 0 auto; */
-  /* padding: 2rem; */
-  /* text-align: center; */
+
 }
 
 * {
@@ -607,6 +605,8 @@ nav .navPart2 ul li:hover .submenu {
   width: 100%;
 
 }
+ 
+
 
 .product_row .item .slick-arrow {
   position: absolute;
@@ -1813,4 +1813,8 @@ sing in
 }
 .SignUpPage .box{
   width: 500px;
+}
+
+.outStock{
+  color: red !important;
 }

@@ -6,17 +6,16 @@ import Rating from "@mui/material/Rating";
 import { AiOutlineFullscreen } from "react-icons/ai";
 import { CiHeart } from "react-icons/ci";
 import banner2 from "../../assets/Banner/banner2.jpg";
-import banner4 from "../../assets/Banner/banner4.avif";
 import banner5 from "../../assets/Banner/banner5.jpg";
 import banner6 from "../../assets/Banner/R.jpg";
 import snack from "../../assets/Banner/snack.png";
-import UserMt from "../../assets/Banner/userMt.jpg";
-import UserM1 from "../../assets/Banner/userMt2.avif";
 import laycy from "../../assets/Banner/lacy.webp";
 import newSletterImage from "../../assets/Banner/coupon.webp";
 import { IoMailOutline } from "react-icons/io5";
 import HomeCat from "../../component/HomeCat/HomeCat";
 import Product from "../../component/Product/Product";
+import { useEffect, useState } from "react";
+import { getData } from "../../util/api";
 
 
 const Home = () => {
@@ -30,6 +29,45 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 3000,
   };
+ 
+  const [product,setProduct] = useState([])
+
+
+  useEffect(()=>{
+    getProduct();
+  },[])
+
+    const getProduct = async() =>{
+       try {
+        const res = await getData("/product"); // 🔁 API path
+       
+  
+        if (Array.isArray(res)) {
+          const formatted = res.map((item) => ({
+            id: item._id,
+            file: item.images?.[0], // ✅ Use first image
+            product: item.name,
+            category: item.category?.name || "N/A",
+            brand: item.brand,
+            oldPrice:item.oldPrice,
+            price: item.price,
+            stock: item.countInStock,
+            rating: item.rating,
+           colors: Array.isArray(item.colors) ? item.colors : [],
+            weights: Array.isArray(item.weights) ? item.weights : [],
+            sizes: Array.isArray(item.sizes) ? item.sizes : [],
+          }));
+  
+          setProduct(formatted);
+           console.log("Formatted rows:", formatted);
+        } else {
+          console.error("Error loading products", res);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    }
+
   return (
     <>
       <div className="container home">
@@ -106,10 +144,12 @@ const Home = () => {
               </div>
               <div className="product_row">
                 <Slider {...ProductSlideOptions}>
-                    <Product/>
-                    <Product/>
-                    <Product/>
-                    <Product/>
+                    {/* <Product data={product}/> */}
+                   
+                    {product.map((item, index) => (
+    <Product key={item.id || index} item={item} itemView="grid" />
+  ))}
+                    
                  
                 </Slider>
               </div>

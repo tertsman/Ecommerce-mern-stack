@@ -11,8 +11,34 @@ import QuantityBox from "../QuantityBox/QuantityBox";
 import { CiHeart } from "react-icons/ci";
 import { IoGitCompareOutline } from "react-icons/io5";
 import ProductZoom from "../productzoom/ProductZoom";
+import { useEffect, useState } from "react";
+import { getData } from "../../util/api";
 
 const ProductDetails = (props) => {
+
+
+    const [product,setProduct] = useState([])
+  
+  
+    useEffect(()=>{
+      if (props.productId) {
+            getData(`/product/${props.productId}`)
+              .then((data) => {
+                setProduct(data);
+               
+              })
+              .catch(() => {
+                console.log("False")
+
+              });
+          }
+          
+    },[props.productId])
+
+    console.log("get product by id",product)
+    console.log("rating",product.rating)
+
+      
  
   return (
     <Dialog
@@ -22,16 +48,16 @@ const ProductDetails = (props) => {
     >
       <div className="product-quick">
         <div className="product-quick-header">
-          <h4 className="mb-0">All Natural Italian-Style Chicken Meatballs</h4>
+          <h4 className="mb-0">{product.name}</h4>
           <div className="d-flex align-items-center mt-1">
             <div className="d-flex brands align-items-center   px-3 py-1">
               <span>Brands :</span>
               <span className="ms-1">
-                <b>Welch's</b>
+                <b>{product.brand}</b>
               </span>
             </div>
             <div className="d-flex rating align-items-center px-3 py-2">
-              <Rating name="read-only" value={5} readOnly size="small" />
+              <Rating name="read-only" value={product.rating                        } readOnly size="small" />
               <p className="mb-0">1review</p>
             </div>
             <div className="d-flex sku align-items-center px-3 py-2">
@@ -50,8 +76,8 @@ const ProductDetails = (props) => {
           <div className="col-md-7 details">
             <div className="details-info align-items-center">
               <div className="price">
-                <span className="oldPrice">$9.35</span>
-                <span className="netPrice">$7.25</span>
+                <span className="oldPrice">{product.oldPrice}</span>
+                <span className="netPrice">{product.price}</span>
               </div>
               <div className="product-meta">
                 <span className="stock in-stock">In Stock</span>
