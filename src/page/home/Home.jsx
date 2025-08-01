@@ -2,10 +2,6 @@ import HomerBanner from "../../component/homeBanner/HomerBanner";
 import Button from "@mui/material/Button";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import Slider from "react-slick";
-import Rating from "@mui/material/Rating";
-import { AiOutlineFullscreen } from "react-icons/ai";
-import { CiHeart } from "react-icons/ci";
-import banner2 from "../../assets/Banner/banner2.jpg";
 import banner5 from "../../assets/Banner/banner5.jpg";
 import banner6 from "../../assets/Banner/R.jpg";
 import snack from "../../assets/Banner/snack.png";
@@ -14,9 +10,10 @@ import newSletterImage from "../../assets/Banner/coupon.webp";
 import { IoMailOutline } from "react-icons/io5";
 import HomeCat from "../../component/HomeCat/HomeCat";
 import Product from "../../component/Product/Product";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getData } from "../../util/api";
-
+import { MyContext } from "../../App";
+import { motion } from "framer-motion";
 
 const Home = () => {
   const ProductSlideOptions = {
@@ -28,45 +25,87 @@ const Home = () => {
     loop: true,
     autoplay: true,
     autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 2,
+        },
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
- 
-  const [product,setProduct] = useState([])
 
+  const [product, setProduct] = useState([]);
+  const context = useContext(MyContext);
+  const [homeBanner, setHomeBanner] = useState([]);
+  const [bannerBottom, setBannerBottom] = useState();
 
-  useEffect(()=>{
-    getProduct();
-  },[])
-
-    const getProduct = async() =>{
-       try {
-        const res = await getData("/product"); // 🔁 API path
-       
-  
-        if (Array.isArray(res)) {
-          const formatted = res.map((item) => ({
-            id: item._id,
-            file: item.images?.[0], // ✅ Use first image
-            product: item.name,
-            category: item.category?.name || "N/A",
-            brand: item.brand,
-            oldPrice:item.oldPrice,
-            price: item.price,
-            stock: item.countInStock,
-            rating: item.rating,
-           colors: Array.isArray(item.colors) ? item.colors : [],
-            weights: Array.isArray(item.weights) ? item.weights : [],
-            sizes: Array.isArray(item.sizes) ? item.sizes : [],
-          }));
-  
-          setProduct(formatted);
-           console.log("Formatted rows:", formatted);
-        } else {
-          console.error("Error loading products", res);
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
+  const getProduct = async (filterKey = null) => {
+    try {
+      const url = filterKey ? `/product/?isFeatured=${filterKey}` : "/product";
+      const res = await getData(url);
+      if (Array.isArray(res)) {
+        const formatted = res.map((item) => ({
+          id: item._id,
+          images: item.images?.[0], // ✅ Use first image
+          name: item.name,
+          description: item.description,
+          category: item.category?.name || "N/A",
+          brand: item.brand,
+          oldPrice: item.oldPrice,
+          price: item.price,
+          countInStock: item.countInStock,
+          rating: item.rating,
+          isFeatured: item.isFeatured,
+          colors: item.colors,
+          weights: item.weights,
+          sizes: item.sizes,
+          // sizes : item.sizes,
+        }));
+        setProduct(formatted);
+        // console.log("Formatted rows:", formatted);
+      } else {
+        console.error("Error loading products", res);
       }
+    } catch (error) {
+      console.error("Fetch error:", error);
     }
+  };
+  const getBannerBottom = async () => {
+    const res = await getData("/bannerButtom");
+    setBannerBottom(res);
+  };
+  // console.log("product ",product)
+
+  useEffect(() => {
+    getProduct(); // all
+    getProduct("true");
+    // isFeatured
+    context.setisHeaderFooterShow(true);
+    getHomeBanner();
+    getBannerBottom();
+  }, []);
+
+  const getHomeBanner = async () => {
+    const res = await getData("/homeBanner");
+    setHomeBanner(res);
+    // console.log(res)
+  };
 
   return (
     <>
@@ -78,8 +117,53 @@ const Home = () => {
       <section className="homeProducts">
         <div className="container">
           <div className="row">
-            <div className="col-md-3">
-              <div className="sticky">
+            <div className="col-md-12 overflow-hidden">
+              <div className="row">
+                <motion.div
+                  initial={{ opacity: 0, translateX: "-100%" }}
+                  whileInView={{ opacity: 1, translateX: 0 }}
+                  transition={{ duration: 1 }}
+                  className="col-md-3"
+                >
+                  <div className="sticky">
+                    <div className="banner">
+                      <img src={homeBanner?.[0]?.image} alt="Banner" />
+                    </div>
+                  </div>
+                </motion.div>
+                <div className="col-md-9">
+                  <div className="d-flex align-items-center productRow">
+                    <div className="info mb-0">
+                      <h5 className="hd">BEST SELLER</h5>
+                      <p className=" text-light text-sml ">
+                        Do not miss the current offers until the end of mach.
+                      </p>
+                    </div>
+                    <Button className="viewAll">
+                      View All &nbsp; <IoIosArrowRoundForward />
+                    </Button>
+                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, translateX: "100%" }}
+                    whileInView={{ opacity: 1, translateX: 0 }}
+                    transition={{ duration: 2 }}
+                    className="product_row overflow-hidden"
+                  >
+                    <Slider {...ProductSlideOptions}>
+                      {product
+                        .filter((item) => item.isFeatured === true)
+                        .map((item, index) => (
+                          <Product
+                            key={item.id || index}
+                            item={item}
+                            itemView="grid"
+                          />
+                        ))}
+                    </Slider>
+                  </motion.div>
+                </div>
+              </div>
+              {/* <div className="sticky">
                 <div className="banner">
                   <img
                     src="https://img.freepik.com/premium-psd/fresh-fruits-banner-social-media-flyer-design-template_509525-175.jpg?w=2000"
@@ -93,45 +177,11 @@ const Home = () => {
                 </div>
 
                 
-
-                {/* <div className="customer-cmt mt-5">
-                  <h4>customer Commend</h4>
-                  <div className="customer-cmt-box">
-                    <div className="customerMt-head">
-                      <h5>The Best Marketplace</h5>
-                      <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Laborum, sit!
-                      </p>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-3 ">
-                        <div className="imgWrapper">
-                          <img src={UserM1} alt="" />
-                        </div>
-                      </div>
-                      <div className="col-md-9 title">
-                        <h5>Alizabel</h5>
-                        <p>Sale Manager</p>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-3 ">
-                        <div className="imgWrapper">
-                          <img src={UserMt} alt="" />
-                        </div>
-                      </div>
-                      <div className="col-md-9 title">
-                        <h5>Alizabel</h5>
-                        <p>Sale Manager</p>
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
-              </div>
+              </div> */}
             </div>
-            <div className="col-md-9">
-              <div className="d-flex align-items-center productRow">
+
+            <div className="col-md-12">
+              {/* <div className="d-flex align-items-center productRow">
                 <div className="info mb-0">
                   <h5 className="hd">BEST SELLER</h5>
                   <p className=" text-light text-sml ">
@@ -141,506 +191,82 @@ const Home = () => {
                 <Button className="viewAll">
                   View All &nbsp; <IoIosArrowRoundForward />
                 </Button>
-              </div>
-              <div className="product_row">
+              </div> */}
+              {/* <div className="product_row">
                 <Slider {...ProductSlideOptions}>
-                    {/* <Product data={product}/> */}
-                   
-                    {product.map((item, index) => (
-    <Product key={item.id || index} item={item} itemView="grid" />
-  ))}
-                    
-                 
+                  
+                  {product
+                    .filter((item) => item.isFeatured === true)
+                    .map((item, index) => (
+                      <Product
+                        key={item.id || index}
+                        item={item}
+                        itemView="grid"
+                      />
+                    ))}
                 </Slider>
+              </div> */}
+              <div className="row"></div>
+              <div className="bannerMiddl d-flex align-items-center productRow mt-4 overflow-hidden">
+                <motion.div
+                  initial={{ opacity: 0, translateY: "100%" }}
+                  whileInView={{ opacity: 1, translateY: 0 }}
+                  transition={{ duration: 2 }}
+                  className="banner w-100"
+                ></motion.div>
               </div>
 
-              <div className="bannerMiddl d-flex align-items-center productRow mt-4">
-                <div className="banner w-100">
-                  {/* <img src={maketing} alt="" className="w-100" /> */}
-                </div>
-              </div>
               <div className="d-flex align-items-center productRow mt-4">
                 <div className="info mb-0">
                   <h5 className="hd">NEW PRODUCT</h5>
                   <p className=" text-light text-sml ">
-                  New products with updated stocks.
+                    New products with updated stocks.
                   </p>
                 </div>
                 <Button className="viewAll">
                   View All &nbsp; <IoIosArrowRoundForward />
                 </Button>
               </div>
-              <div className="product_row">
-                <Slider {...ProductSlideOptions}>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://media.premiumtimesng.com/wp-content/files/2021/10/Indomie.png"
-                        alt=""
-                        className="w-100"
-                      />
-
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
+              <div className="w-100">
+                <div className="newProductGrid">
+                  {product.map((item, index) => (
+                    <div key={item.id || index}>
+                      <Product item={item} itemView="grid" />
                     </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://nhatthienan.vn/wp-content/uploads/2016/11/keo-socola-miniature-hersheys-158kg-1m4G3-clNxlj-1.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://costcofdb.com/wp-content/uploads/2022/01/hersheys-special-dark-minis-48-oz.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://www.rationatmydoor.com/wp-content/uploads/2019/01/nescafe-coffee.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating
-                        name="read-only"
-                        value={5}
-                        readOnly
-                        precision={0.5}
-                      />
-                      <div className="text-des">
-                        <h4>Product Name Product Name </h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://www.rationatmydoor.com/wp-content/uploads/2019/01/nescafe-coffee.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating
-                        name="read-only"
-                        value={5}
-                        readOnly
-                        precision={0.5}
-                      />
-                      <div className="text-des">
-                        <h4>Product Name Product Name </h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                </Slider>
-              </div>
-              <div className="product_row">
-                <Slider {...ProductSlideOptions}>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://media.premiumtimesng.com/wp-content/files/2021/10/Indomie.png"
-                        alt=""
-                        className="w-100"
-                      />
-
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://nhatthienan.vn/wp-content/uploads/2016/11/keo-socola-miniature-hersheys-158kg-1m4G3-clNxlj-1.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://costcofdb.com/wp-content/uploads/2022/01/hersheys-special-dark-minis-48-oz.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating name="read-only" value={5} readOnly />
-                      <div className="text-des">
-                        <h4>Product Name</h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://www.rationatmydoor.com/wp-content/uploads/2019/01/nescafe-coffee.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating
-                        name="read-only"
-                        value={5}
-                        readOnly
-                        precision={0.5}
-                      />
-                      <div className="text-des">
-                        <h4>Product Name Product Name </h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                  <div className="item productItem">
-                    <div className="imgWrapper">
-                      <img
-                        src="https://www.rationatmydoor.com/wp-content/uploads/2019/01/nescafe-coffee.jpg"
-                        alt=""
-                        className="w-100"
-                      />
-                      <span className="badge ">28%</span>
-                      <div className="actions">
-                        <Button>
-                          <AiOutlineFullscreen />
-                        </Button>
-                        <Button>
-                          <CiHeart />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="title">
-                      <Rating
-                        name="read-only"
-                        value={5}
-                        readOnly
-                        precision={0.5}
-                      />
-                      <div className="text-des">
-                        <h4>Product Name Product Name </h4>
-                        <p>description</p>
-                      </div>
-                      <span className="text-success ">In Stock</span>
-
-                      <div className="pro-price">
-                        <p className="orprice">$128.99</p>
-                        <p className="Disprice">$100.99</p>
-                      </div>
-                      <Button className="addtocard">Add to card</Button>
-                    </div>
-                  </div>
-                </Slider>
+                  ))}
+                </div>
               </div>
 
               <div className="bannerSec d-flex mt-3">
-                <div className="banner  w-100">
-                  <img src={banner6} alt="" className="cursor" />
-                </div>
-                <div className="banner w-100 ">
-                  <img src={banner5} alt="" className="cursor" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row mudole-1">
-            <div className="col-md-2">
-              <div className="first">
-                <div className="first-image">
-                  <img src={laycy} alt="" className="w-100" />
-                </div>
-                <div className="first-details mt-4">
-                  <h6>lay spaicy crayfish</h6>
-                  <p> 90 Item</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-10">
-              <div className="row">
-                <div className="col-md-3 ">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Biscuits & Snacks</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-3 ">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Biscuits & Snacks</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="second">
-                    <div className="second-image">
-                      <img src={snack} alt="" className="w-100" />
-                    </div>
-                    <div className="second-details">
-                      <h6>Breads & Bakery</h6>
-                      <p> 90 Item</p>
-                    </div>
-                  </div>
-                </div>
+                {bannerBottom?.length !== 0 &&
+                  bannerBottom?.map((item, index) => {
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, translateY: "50%" }}
+                        whileInView={{ opacity: 1, translateY: 0 }}
+                        transition={{ duration: 2 }}
+                        className="banner"
+                        key={index}
+                      >
+                        <img src={item.image} alt="" className="cursor" />
+                      </motion.div>
+                    );
+                  })}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="newSletter">
-        <div className="container">
+      <section
+        
+        className="newSletter overflow-hidden"
+      >
+        <motion.div
+        initial={{ opacity: 0, translateX: "50%" }}
+        whileInView={{ opacity: 1, translateX: 0 }}
+        transition={{ duration: 2 }}
+        className="container">
           <div className="row">
             <div className="col-md-6">
               <p className="text-light mb-0">$20 discount for your order</p>
@@ -662,9 +288,8 @@ const Home = () => {
               <img src={newSletterImage} alt="" />
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
-     
     </>
   );
 };

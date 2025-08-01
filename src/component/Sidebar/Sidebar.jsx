@@ -1,14 +1,35 @@
-import FormGroup from "@mui/material/FormGroup";
+/* eslint-disable react/prop-types */
+// import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import RangeSlider from "react-range-slider-input";
+// import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import { useState } from "react";
 import banner from "../../assets/Banner/banner2.jpg";
+import { getData } from "../../util/api";
+import { useEffect } from "react";
 
-const Sidebar = () => {
-  const [value, setValue] = useState([100, 60000]);
-  // const [value1, setValue1] = useState(0);
+const Sidebar = (props) => {
+  // const [value, setValue] = useState([100, 60000]);
+  const [subCate,setSubCate] = useState([])
+  
+    const getCate =async () => {
+      const res = await getData("/category");
+  
+      // if(res.ok){
+      //   setSubCate(res)
+      // }
+      setSubCate(res)
+      console.log("res",res)
+    }
+  
+    useEffect(()=>{
+        getCate();
+    },[])
+
+    const filterBycategory = (categoryId) =>{
+      props.filterData(categoryId);
+    }
 
   return (
     <>
@@ -17,113 +38,26 @@ const Sidebar = () => {
           <div className="fillterBox">
             <h6>PRODUCT CATEGORIES</h6>
             <div className="scroll">
+
+              
               <ul>
-                <li>
+                {
+                  subCate?.map((item,index)=>(
+
+                <li key={index}>
                   <FormControlLabel
                     className="w-100"
-                    control={<Checkbox />}
-                    label="Men"
+                    control={<Checkbox onClick={()=> filterBycategory(item._id)} />}
+                    label={item.name}
                   />
                 </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Women"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Beauty"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Kids"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Gift"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Clothing"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Men"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Women"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Beauty"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Kids"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Gift"
-                  />
-                </li>
-                <li>
-                  <FormControlLabel
-                    className="w-100"
-                    control={<Checkbox />}
-                    label="Clothing"
-                  />
-                </li>
+                  ))
+                }
+                
               </ul>
             </div>
           </div>
-          <div className="fillterBox">
-            <h6>FILLTER BY BRICE</h6>
-            <RangeSlider
-              value={value}
-              onInput={setValue}
-              min={100}
-              max={60000}
-              step={5}
-            />
-            <div className="d-flex pt-2 pb-2 justify-content-between priceRang">
-              <span>
-                From: <strong className="text-success">Rs:{value[0]}</strong>
-              </span>
-              <span>
-                From: <strong className="text-success">Rs:{value[1]}</strong>
-              </span>
-            </div>
-          </div>
-
+       
           <div className="fillterBox">
             <h6>PRODUCT STATUS</h6>
             <div className="scroll">

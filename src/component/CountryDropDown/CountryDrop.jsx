@@ -30,7 +30,7 @@ const CountryDrop = () => {
   const filterList = (e) => {
     const keyword = e.target.value.toLowerCase();
     if(keyword !== ""){
-      const list = countryList.filter((item)=>{
+      const list = countryList?.filter((item)=>{
         return item.country.toLowerCase().includes(keyword);
       }) ;
       setCountryList(list);
@@ -46,7 +46,7 @@ const CountryDrop = () => {
       <Button className="CountryDrop" onClick={() => setIsOpenModal(true)}>
         <div className="info d-flex flex-column ml-10 ">
           <span className="label">Your Location</span>
-          <span className="name" >{context.selectedTabCountry !== "" ? context.selectedTabCountry.length > 10 ? context.selectedTabCountry.substr(0,10)+ '...' : context.selectedTabCountry : "Select location"}</span>
+          <span className="name" >{context.selectedTabCountry !== "" ? context.selectedTabCountry?.length > 10 ? context.selectedTabCountry?.substr(0,10)+ '...' : context.selectedTabCountry : "Select location"}</span>
           
         </div>
         <span className=" ml-auto m-lg-auto">

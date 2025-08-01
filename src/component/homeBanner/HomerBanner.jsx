@@ -1,42 +1,52 @@
-
+import { useEffect, useState } from "react";
 import Slider from "react-slick";
-
+import { getData } from "../../util/api";
+import {motion} from 'framer-motion'
 const HomerBanner = () => {
+  var settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    loop: true,
+    autoplay: true,
+    autoplaySpeed: 2000,
+  };
 
-    var settings = {
-        dots: true,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        loop:true,
-        autoplay: true,
-        autoplaySpeed: 2000
-        
-      };
+  const [slideBannerList, setSlideBannerList] = useState();
+
+  const getSlideBanner = async () => {
+    const res = await getData("/slideBanner");
+    setSlideBannerList(res);
+  };
+
+  useEffect(() => {
+    getSlideBanner();
+  });
   return (
-    
-      <div className="homeBannerSection ">
-        <Slider {...settings}>
-            <div className="item" >
-                    <img src="https://web.larue.com.kh/image/vcache/home/slide/web_3081735801792.webp" alt="" className="w-100" />
-            </div>
-            <div className="item" >
-                    <img src="https://web.larue.com.kh/image/vcache/home/slide/web_2061738553400.webp" alt="" className="w-100" />
-            </div>
-            <div className="item" >
-                    <img src="https://web.larue.com.kh/image/vcache/home/slide/web_2461735804072.webp" alt="" className="w-100" />
-            </div>
-            <div className="item" >
-                    <img src="https://web.larue.com.kh/image/vcache/home/slide/web_3131738553439.webp" alt="" className="w-100" />
-            </div>
-            <div className="item" >
-                    <img src="https://i.pinimg.com/736x/ed/cd/32/edcd32b829a5c6e614a6d6383c562742.jpg" alt="" className="w-100" />
-            </div>
-        </Slider>
-      </div>
-    
-  )
-}
+    <motion.div 
+    initial={{opacity:0,scale:0.8}}
+    whileInView={{opacity:1,scale:1}}
+    transition={{duration:2}}
+    className="homeBannerSection ">
+      <Slider {...settings}>
+        {slideBannerList?.length !== 0 &&
+          slideBannerList?.map((item, index) => {
+            return (
+              <div className="item" key={index}>
+                <img
+                  src={item.image}
+                  alt={item.image}
+                  className="w-100"
+                />
+              </div>
+            );
+          })}
+        
+      </Slider>
+    </motion.div>
+  );
+};
 
-export default HomerBanner
+export default HomerBanner;

@@ -8,6 +8,17 @@ const API = axios.create({
 
 });
 
+API.interceptors.request.use(config => {
+  if (config.url === '/api/user/signup') {
+    return config; // មិនបន្ថែម Authorization header នៅ signup
+  }
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // GET
 export const getData = async (url) => {
   try {
@@ -33,6 +44,34 @@ export const postData = async (url, formData) => {
     throw error;
   }
 };
+export const APIpostData = async (url, formData) => {
+  try {
+    const { data } = await API.post(url, formData,{
+        headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error("POST error:", error);
+    throw error;
+  }
+};
+
+export const APIputData = async (url, formData) => {
+  try {
+    const { data } = await API.put(url, formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error("PUT error:", error);
+    throw error;
+  }
+};
+
 
 // PUT
 export const putData = async (url, formData) => {

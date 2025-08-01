@@ -1,17 +1,8 @@
-import React from "react";
+/* eslint-disable react/prop-types */
 import Product from "../../../component/Product/Product";
-import Slider from "react-slick";
+// import Slider from "react-slick";
 const RelateProduct = (props) => {
-  const ProductSlideOptions = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 6,
-    slidesToScroll: 6,
-    loop: true,
-     
-  };
-
+  console.log("reslets",props.data)
   return (
     <>
       <section className="section Relate_product mb-5 ">
@@ -20,17 +11,15 @@ const RelateProduct = (props) => {
             <h5 className="hd">{props.title}</h5>
           </div>
         </div>
-        <div className="slider-container">
-          <Slider {...ProductSlideOptions}>
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-          </Slider>
+        <div className="relateProduct">
+
+
+          
+            {
+              props.data?.map((item) => <Product item={item} key={item._id}/>)
+            }
+           
+          
         </div>
       </section>
     </>

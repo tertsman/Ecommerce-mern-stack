@@ -1,22 +1,26 @@
+/* eslint-disable react/prop-types */
 
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import { IoMdClose } from "react-icons/io";
 import Rating from "@mui/material/Rating";
-
+import { FaShoppingCart } from "react-icons/fa";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.min.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { FaCheck } from "react-icons/fa6";
 import QuantityBox from "../QuantityBox/QuantityBox";
 import { CiHeart } from "react-icons/ci";
 import { IoGitCompareOutline } from "react-icons/io5";
 import ProductZoom from "../productzoom/ProductZoom";
-import { useEffect, useState } from "react";
-import { getData } from "../../util/api";
-
+import { useContext, useEffect, useState } from "react";
+import { APIpostData, getData } from "../../util/api";
+import dayjs from "dayjs"
+import { MyContext } from "../../App";
 const ProductDetails = (props) => {
 
-
+const [productQuantity, setProductQuantity] = useState();
+     const context = useContext(MyContext)
     const [product,setProduct] = useState([])
   
   
@@ -34,11 +38,68 @@ const ProductDetails = (props) => {
           }
           
     },[props.productId])
+      const rating = Number( product?.rating);
 
-    console.log("get product by id",product)
-    console.log("rating",product.rating)
 
-      
+      const quantity = (val) => {
+    setProductQuantity(val);
+  };
+    const addToCart = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+      context.setMessage({
+        open: true,
+        type: "warning",
+        text: "Please login before adding to cart",
+      });
+      return;
+    }
+
+    const cartFields = {
+      productTitle: product?.name,
+      image: product?.images?.[0],
+      rating: product?.rating,
+      quantity: productQuantity,
+      price: product?.price,
+      subTotal: parseInt(product?.price * productQuantity),
+      productId: product?._id,
+      userId: user.userId,
+    };
+
+    context.addToCart(cartFields);
+  };
+
+
+  const addToWishlist = async(product) =>{
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user)
+    try {
+      const res = await APIpostData('/wishlist/create',{
+        productTitle: product.name,
+        image: product?.images?.[0],
+        rating: product.rating,
+        price: product.price,
+        productId: product.id,
+        userId: user?.userId, // អ្នកត្រូវមាន user login រួច
+      })
+  
+      console.log("wishlist",res)
+      context.setMessage({
+          open: true,
+          type: "success",
+          text: "product add to your wishlist.!",
+        });
+    } catch (error) {
+      if(error.status== 401){
+          context.setMessage({
+            open: true,
+            type: "error",
+            text: "Don't have an account please sign up ",
+          });
+        }
+    }
+  }
  
   return (
     <Dialog
@@ -57,7 +118,7 @@ const ProductDetails = (props) => {
               </span>
             </div>
             <div className="d-flex rating align-items-center px-3 py-2">
-              <Rating name="read-only" value={product.rating                        } readOnly size="small" />
+              <Rating name="read-only" value={rating} readOnly  size="small" />
               <p className="mb-0">1review</p>
             </div>
             <div className="d-flex sku align-items-center px-3 py-2">
@@ -71,7 +132,7 @@ const ProductDetails = (props) => {
 
         <div className="quick-body row">
           <div className="col-md-5">
-           <ProductZoom/>
+           <ProductZoom data={product}/>
           </div>
           <div className="col-md-7 details">
             <div className="details-info align-items-center">
@@ -80,22 +141,31 @@ const ProductDetails = (props) => {
                 <span className="netPrice">{product.price}</span>
               </div>
               <div className="product-meta">
-                <span className="stock in-stock">In Stock</span>
+                <span className="stock in-stock">{product.countInStock && product.countInStock > 0 ? "In Stock" : <><span className="outStock">Out of Stock</span></>}</span>
               </div>
               <div className="product-short-desc">
                 <p>
-                  Vivamus adipiscing nisl ut dolor dignissim semper. Nulla
-                  luctus malesuada tincidunt. Class aptent taciti sociosqu ad
-                  litora torquent
+                  {product.description}
                 </p>
               </div>
               <div className="product-actions">
-                <QuantityBox />
-                <Button className="btn-big btn-addToCard">add to card</Button>
+                <QuantityBox  quantity={quantity} />
+                <Button className="btn-big btn-addToCard" onClick={addToCart}>
+                  
+                  {context.isLoading ? (
+                                        <CircularProgress color="inherit" className="loading" />
+                                      ) : (
+                                        <>
+                                          {" "}
+                                          <FaShoppingCart /> &nbsp; add to card
+                                        </>
+                                      )}
+                  
+                  </Button>
               </div>
 
               <div className="d-flex align-item-center mt-5 gap-2">
-                <Button className="btn-wishlist">
+                <Button className="btn-wishlist" onClick={()=>addToWishlist(product)}>
                   <CiHeart /> &nbsp; add to Wishlist{" "}
                 </Button>
                 <Button className="btn-wishlist">
@@ -105,10 +175,10 @@ const ProductDetails = (props) => {
               <div className="product-checklist">
                 <ul>
                   <li>
-                    <FaCheck /> &nbsp;Type: Organic
+                    <FaCheck /> &nbsp;Type: {product.category?.name}
                   </li>
                   <li>
-                    <FaCheck /> &nbsp;MFG: Jun 4.2021
+                    <FaCheck /> &nbsp;MFG: {dayjs(product.dateCreated).format('DD-MMM-YY')}
                   </li>
                   <li>
                     <FaCheck /> &nbsp;LIFE: 30 days

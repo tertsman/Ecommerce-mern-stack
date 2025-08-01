@@ -9,10 +9,13 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import React, { useState } from "react";
 import Product from "../../component/Product/Product";
-import Pagination from '@mui/material/Pagination';
+import Pagination from "@mui/material/Pagination";
+import { getData } from "../../util/api";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 const Listing = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [productView,setProductView] = useState('four')
+  const [productView, setProductView] = useState("four");
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -20,13 +23,82 @@ const Listing = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const { categoryId } = useParams();
 
+  const [product, setProduct] = useState([]);
+
+  const getProduct = async () => {
+    try {
+      if (!categoryId) return;
+      const res = await getData(`/product/category/${categoryId}`);
+      if (Array.isArray(res)) {
+        const formatted = res.map((item) => ({
+          id: item._id,
+          images: item.images?.[0], // ✅ Use first image
+          name: item.name,
+          description: item.description,
+          category: item.category?.name || "N/A",
+          brand: item.brand,
+          oldPrice: item.oldPrice,
+          price: item.price,
+          countInStock: item.countInStock,
+          rating: item.rating,
+          isFeatured: item.isFeatured,
+          colors: item.colors,
+          weights: item.weights,
+          sizes: item.sizes,
+          // sizes : item.sizes,
+        }));
+        setProduct(formatted);
+        console.log("Formatted by category", formatted);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    getProduct();
+  }, [categoryId]);
+
+  const filterData= async(categoryId) =>{
+      try {
+      if (!categoryId) return;
+      const res = await getData(`/product/category/${categoryId}`);
+      if (Array.isArray(res)) {
+        const formatted = res.map((item) => ({
+          id: item._id,
+          images: item.images?.[0], // ✅ Use first image
+          name: item.name,
+          description: item.description,
+          category: item.category?.name || "N/A",
+          brand: item.brand,
+          oldPrice: item.oldPrice,
+          price: item.price,
+          countInStock: item.countInStock,
+          rating: item.rating,
+          isFeatured: item.isFeatured,
+          colors: item.colors,
+          weights: item.weights,
+          sizes: item.sizes,
+          // sizes : item.sizes,
+        }));
+        setProduct(formatted);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  }
   return (
     <>
       <section className="product_listing_Page">
         <div className="container">
-          <div className="productListing d-flex">
-            <Sidebar />
+          <div className="productListing row">
+            <div className="col-md-3">
+
+            <Sidebar filterData= {filterData} />
+            </div>
+            <div className="col-md-8">
 
             <div className="content_right">
               <div className="banner-thumbnail">
@@ -47,16 +119,28 @@ const Listing = () => {
               </div>
               <div className="showBy">
                 <div className="btnWrapper d-flex">
-                  <Button className={productView === 'one' ? 'act':''} onClick={()=>setProductView('one')}>
+                  <Button
+                    className={productView === "one" ? "act" : ""}
+                    onClick={() => setProductView("one")}
+                  >
                     <IoIosMenu />
                   </Button>
-                  <Button className={productView === 'two' ? 'act':''} onClick={()=>setProductView('two')}>
+                  <Button
+                    className={productView === "two" ? "act" : ""}
+                    onClick={() => setProductView("two")}
+                  >
                     <HiViewGrid />
                   </Button>
-                  <Button className={productView === 'three' ? 'act':''} onClick={()=>setProductView('three')}>
+                  <Button
+                    className={productView === "three" ? "act" : ""}
+                    onClick={() => setProductView("three")}
+                  >
                     <CgMenuGridO />
                   </Button>
-                  <Button className={productView === 'four' ? 'act':''} onClick={()=>setProductView('four')}>
+                  <Button
+                    className={productView === "four" ? "act" : ""}
+                    onClick={() => setProductView("four")}
+                  >
                     <CgMenuGridR />
                   </Button>
                 </div>
@@ -66,7 +150,7 @@ const Listing = () => {
                     <FaAngleDown />
                   </Button>
                   <Menu
-                  className="showPaper"
+                    className="showPaper"
                     id="basic-menu"
                     anchorEl={anchorEl}
                     open={open}
@@ -84,28 +168,18 @@ const Listing = () => {
                 </div>
               </div>
 
-              <div className="productLit">
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
-                    <Product itemView = {productView}/>
+              <div className={`productLit `}>
+                {product?.length > 0 &&
+                  product.map((item,index) => (
                     
+                      <Product key={index} itemView={productView} item={item} />
+                    
+                  ))}
               </div>
               <div className="d-flex align-items-center justify-content-center mt-3">
-              <Pagination count={10} color="primary" />
+                <Pagination count={10} color="primary" />
               </div>
+            </div>
             </div>
           </div>
         </div>

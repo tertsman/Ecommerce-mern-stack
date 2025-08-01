@@ -8,33 +8,54 @@ import { MdOutlineSettingsPhone } from "react-icons/md";
 import { TiSocialFacebook } from "react-icons/ti";
 import { TiSocialTwitter } from "react-icons/ti";
 import { CiInstagram } from "react-icons/ci";
-
+import {motion} from "framer-motion"
 
 const Footer = () => {
   return (
     <footer>
         <div className="container">
-            <div className="topInfo row">
-                <div className="col-md-3 col ">
+            <div className="topInfo row overflow-hidden">
+                <motion.div
+                initial={{opacity:0,translateX:"-100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:2}}
+                className="col-md-3 col ">
                     <span><RiTShirtAirLine/></span>
                     <span className='ms-2'>Everyday fresh products</span>
-                </div>
-                <div className="col-md-3 col">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"-100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:1}}
+                className="col-md-3 col">
                     <span><TbTruckDelivery/></span>
                     <span className='ms-2'>Free delivery for order over $70</span>
-                </div>
-                <div className="col-md-3 col  ">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:1}}
+                className="col-md-3 col  ">
                     <span><PiSealPercent/></span>
                     <span className='ms-2'>Daily Mega Discounts</span>
-                </div>
-                <div className="col-md-3 col ">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:2}}
+                
+                className="col-md-3 col ">
                     <span><MdCurrencyExchange/></span>
                     <span className='ms-2'>Best price on the market</span>
-                </div>
+                </motion.div>
             </div>
 
-            <div className="row wedget">
-                <div className="col">
+            <div className="row wedget overflow-hidden">
+                <motion.div
+                initial={{opacity:0,translateX:"-100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:2}}
+                className="col">
                     <h5>FRUIT & VEGETABLES</h5>
                     <ul>
                         <li> <Link to="/">Fresh Vegetables</Link> </li>
@@ -45,8 +66,12 @@ const Footer = () => {
                         <li> <Link to="/">Packaged Produce</Link> </li>
                         <li> <Link to="/">Party Trays</Link> </li>
                     </ul>
-                </div>
-                <div className="col">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"-100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:1}}
+                className="col">
                     <h5>Breakfast & Dairy</h5>
                     <ul>
                         <li> <Link to="/">Milk & Flavoured Milk</Link> </li>
@@ -59,8 +84,12 @@ const Footer = () => {
                         <li> <Link to="/">Sour Cream and Dips</Link> </li>
                         <li> <Link to="/">Yogurt</Link> </li>
                     </ul>
-                </div>
-                <div className="col">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:1}}
+                 className="col">
                     <h5>Meat & Seafood</h5>
                     <ul>
                         <li> <Link to="/">Breakfast Sausage</Link> </li>
@@ -73,8 +102,13 @@ const Footer = () => {
                         <li> <Link to="/">Crab and Shellfish</Link> </li>
                         <li> <Link to="/">Farm Raised Fillets</Link> </li>
                     </ul>
-                </div>
-                <div className="col">
+                </motion.div>
+                <motion.div
+
+                initial={{opacity:0,translateX:"100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:2}}
+                 className="col">
                     <h5>Beverages</h5>
                     <ul>
                         <li> <Link to="/">Water</Link> </li>
@@ -87,8 +121,12 @@ const Footer = () => {
                         <li> <Link to="/">Craft Beer</Link> </li>
                         <li> <Link to="/">Wine</Link> </li>
                     </ul>
-                </div>
-                <div className="col">
+                </motion.div>
+                <motion.div
+                initial={{opacity:0,translateX:"100%"}}
+                whileInView={{opacity:1,translateX:0}}
+                transition={{duration:3}}
+                className="col">
                     <h5>Breads & Bakery</h5>
                     <ul>
                         <li> <Link to="/">Milk & Flavoured Milk</Link> </li>
@@ -99,7 +137,7 @@ const Footer = () => {
                         <li> <Link to="/">Marmalades</Link> </li>
                         <li> <Link to="/">Sour Cream and Dips</Link> </li>
                     </ul>
-                </div>
+                </motion.div>
             </div>
 
 
