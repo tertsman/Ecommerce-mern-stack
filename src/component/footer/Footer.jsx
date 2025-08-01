@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { RiTShirtAirLine } from "react-icons/ri";
 import { TbTruckDelivery } from "react-icons/tb";
 import { PiSealPercent } from "react-icons/pi";

@@ -1,5 +1,4 @@
 // import "./header.css";
-import logo from "../../assets/image/bacola-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
 import CountryDrop from "../CountryDropDown/CountryDrop";
