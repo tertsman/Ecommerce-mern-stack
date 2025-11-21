@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./page/home/Home";
 import Header from "./component/header/Header";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Footer from "./component/footer/Footer";
 import Listing from "./page/Listing/Listing";
@@ -15,9 +15,8 @@ import { APIpostData, APIputData, getData } from "./util/api";
 import { Snackbar, Alert } from "@mui/material";
 import WishListPage from "./page/MyList/wishListPage";
 import CheckoutPage from "./page/checkout/CheckoutPage";
-import PaymentSuccess from "./page/paymentSuccess/PaymentSuccess";
-import PaymentCancel from "./page/paymentCancel/PaymentCancel";
 import OrderPage from "./page/Order/OrderPage";
+import MyAccountPage from "./page/MyAccount/MyAccountPage";
 const MyContext = createContext();
 function App() {
   const [countryList, setCountryList] = useState([]);
@@ -31,9 +30,9 @@ function App() {
   const [user,setUser]= useState({
     name:"",
     email:"",
-    userId:""
+    _id:""
   })
-
+const [cartVersion, setCartVersion] = useState(0);
 
 
 
@@ -50,17 +49,100 @@ function App() {
 
 
 
+// const addToCart = async (newItem) => {
+//   try {
+//     // STEP 1: Fetch latest cart for current user
+//     const user = JSON.parse(localStorage.getItem("user"));
+//     const latestCart = await getData(`/cart/user/${user._id}`);
+//     setIsLoading(true)
+//     // STEP 2: Check if this product already exists in cart
+//     const existingItem = latestCart.find(
+//       (item) =>
+//         item.productId === newItem.productId &&
+//         item._id === newItem._id
+//     );
+
+//     if (existingItem) {
+//       // STEP 3: If exists → update quantity & subTotal
+//       const updatedItem = {
+//         ...existingItem,
+//         quantity: existingItem.quantity + newItem.quantity,
+//         subTotal: (existingItem.quantity + newItem.quantity) * existingItem.price,
+//       };
+
+//       const res = await APIputData(`/cart/${existingItem._id}`, updatedItem);
+
+//       // Update local cartData
+//       const { _id, ...rest } = res;
+//       const updated = { id: _id, ...rest };
+
+//       setCartData((prev) =>
+//         prev.map((item) => (item._id === _id ? updated : item))
+//       );
+
+//       setMessage({
+//         open: true,
+//         type: "success",
+//         text: "Cart updated!",
+//       });
+//       fetchCart();
+      
+//         setTimeout(()=>{
+         
+//         setIsLoading(false)
+//       },1000)
+//       setCartVersion(v => v + 1);
+//     } else {
+//       // STEP 4: If not exists → create new cart item
+//       setIsLoading(true)
+//       const res = await APIpostData("/cart/create", newItem);
+//       const { _id, ...rest } = res;
+//       const newCartItem = { id: _id, ...rest };
+
+//       setCartData((prev) => [...prev, newCartItem]);
+
+//       setMessage({
+//         open: true,
+//         type: "success",
+//         text: "product add to cart!",
+//       });
+//       fetchCart();
+//       setTimeout(()=>{
+
+//         setIsLoading(false)
+//       },1000)
+//       setCartVersion(v => v + 1);
+//     }
+//   } catch (error) {
+    
+//     setMessage({
+//       open: true,
+//       type: "error",
+//       text: error.response?.data?.message || error.message,
+//     });
+//     setIsLoading(false)
+//   }
+// };
+
+
 const addToCart = async (newItem) => {
   try {
-    // STEP 1: Fetch latest cart for current user
+    // const user = JSON.parse(localStorage.getItem("user"));
+    // const latestCart = await getData(`/cart/user/${user._id}`);
+    // setIsLoading(true);
+
+    // // STEP 2: Check if this product already exists in cart (by productId only)
+    // const existingItem = latestCart.find(
+    //   (item) => item.productId === newItem.productId
+    // );
+
     const user = JSON.parse(localStorage.getItem("user"));
-    const latestCart = await getData(`/cart/user/${user.userId}`);
-    setIsLoading(true)
-    // STEP 2: Check if this product already exists in cart
+    const itemWithUser = { ...newItem, userId: user._id }; // ✅ បន្ថែម userId
+    const latestCart = await getData(`/cart/user/${user._id}`);
+    setIsLoading(true);
+
     const existingItem = latestCart.find(
-      (item) =>
-        item.productId === newItem.productId &&
-        item.userId === newItem.userId
+      (item) => item.productId === newItem.productId
     );
 
     if (existingItem) {
@@ -87,14 +169,14 @@ const addToCart = async (newItem) => {
         text: "Cart updated!",
       });
       fetchCart();
-        setTimeout(()=>{
-         
-        setIsLoading(false)
-      },1000)
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      setCartVersion((v) => v + 1);
     } else {
       // STEP 4: If not exists → create new cart item
-      setIsLoading(true)
-      const res = await APIpostData("/cart/create", newItem);
+      setIsLoading(true);
+      const res = await APIpostData("/cart/create", itemWithUser);
       const { _id, ...rest } = res;
       const newCartItem = { id: _id, ...rest };
 
@@ -106,58 +188,49 @@ const addToCart = async (newItem) => {
         text: "product add to cart!",
       });
       fetchCart();
-      setTimeout(()=>{
-
-        setIsLoading(false)
-      },1000)
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      setCartVersion((v) => v + 1);
     }
   } catch (error) {
-    
     setMessage({
       open: true,
       type: "error",
       text: error.response?.data?.message || error.message,
     });
-    setIsLoading(false)
+    setIsLoading(false);
   }
 };
 
+const fetchCart = useCallback(async () => {
+  // const user = JSON.parse(localStorage.getItem("user"));
+      const userString = localStorage.getItem('user');
+        const user = userString ? JSON.parse(userString) : null;
+  if (!user) return;
+  const res = await getData(`/cart/user/${user._id}`);
+  setCartItem(res);
+}, []);
 
-
-const  fetchCart = async () => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) return;
-      const res = await getData(`/cart/user/${user.userId}`); // <-- your backend route
-      setCartItem(res);
-      console.log("cartlist", res);
-};
-
-
-
-
-
-
-  
- 
 const handleClose = () => {
           setMessage({ ...message, open: false });
         };
   useEffect(()=>{
       getCountry("https://countriesnow.space/api/V0.1/countries/");
-     const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
   
      if(token !== null && token !==""){
       setisLogin(true)
-  
-      const userData = JSON.parse(localStorage.getItem('user'))
+      const userString = localStorage.getItem('user');
+        const userData = userString ? JSON.parse(userString) : null;
+      // const userData = JSON.parse(localStorage.getItem('user'))
       setUser(userData)
-      console.log(userData)
      }else{
       setisLogin(false)
      }
 fetchCart()
      
-    },[isLogIn])
+    },[isLogIn,cartVersion])
 
     
   
@@ -175,9 +248,8 @@ fetchCart()
     isLoading, setIsLoading,
     cartItem,setCartItem,
     fetchCart,
-    message, setMessage
-
-  
+    message, setMessage,
+    cartVersion,setCartVersion
 
   };
   return (
@@ -208,9 +280,8 @@ fetchCart()
           <Route path="/signin" exact={true} element={<SignIn />} />
           <Route path="/signup" exact={true} element={<SignUpPage />} />
           <Route path="/checkout" exact={true} element={<CheckoutPage />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/myOrder" element={<OrderPage />} />
+        <Route path="/myAccount" element={<MyAccountPage />} />
         </Routes>
         
         {isHeaderFooterShow === true && <Footer />}

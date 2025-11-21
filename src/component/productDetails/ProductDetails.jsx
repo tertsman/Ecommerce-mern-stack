@@ -64,7 +64,7 @@ const [productQuantity, setProductQuantity] = useState();
       price: product?.price,
       subTotal: parseInt(product?.price * productQuantity),
       productId: product?._id,
-      userId: user.userId,
+      _id: user._id,
     };
 
     context.addToCart(cartFields);
@@ -81,7 +81,7 @@ const [productQuantity, setProductQuantity] = useState();
         rating: product.rating,
         price: product.price,
         productId: product.id,
-        userId: user?.userId, // អ្នកត្រូវមាន user login រួច
+        _id: user?._id, // អ្នកត្រូវមាន user login រួច
       })
   
       console.log("wishlist",res)

@@ -13,9 +13,17 @@ import Pagination from "@mui/material/Pagination";
 import { getData } from "../../util/api";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { IoMdClose } from "react-icons/io";
+import { MdOutlineFilterAltOff } from "react-icons/md";
+import { MdOutlineFilterAlt } from "react-icons/md";
 const Listing = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [productView, setProductView] = useState("four");
+
+  const [showFiler,setShowFilter]=useState(false)
+  const [openOverlay,setOpenOverlay] = useState(false)
+
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -89,12 +97,21 @@ const Listing = () => {
       console.error("Fetch error:", error);
     }
   }
+
+  const onOpenFilter = ()=>{
+    setShowFilter(true)
+    setOpenOverlay(true)
+  }
+ const OnCloseFilter = ()=>{
+  setShowFilter(false)
+    setOpenOverlay(false)
+ }
   return (
     <>
       <section className="product_listing_Page">
         <div className="container">
           <div className="productListing row">
-            <div className="col-md-3">
+            <div className="col-md-3 sideBarFilter">
 
             <Sidebar filterData= {filterData} />
             </div>
@@ -144,6 +161,7 @@ const Listing = () => {
                     <CgMenuGridR />
                   </Button>
                 </div>
+                  <div className="openFilter" onClick={onOpenFilter}><MdOutlineFilterAltOff/>Filter</div>
                 <div className="showByFilter">
                   <Button onClick={handleClick}>
                     show 9 &nbsp;
@@ -182,6 +200,17 @@ const Listing = () => {
             </div>
             </div>
           </div>
+          <div className= {`overlay ${openOverlay !== false ? 'open':''}`} onClick={OnCloseFilter}></div>
+          <div className={`mobileFilter ${showFiler !== false ? 'open':''}`}>
+            <div className="mobileFilterHead">
+              <h2><MdOutlineFilterAlt/> Filter</h2>
+              <div className="close-btn" onClick={OnCloseFilter}>
+                  <IoMdClose/>
+              </div>
+            </div>
+            <Sidebar filterData= {filterData} close={OnCloseFilter} />
+          </div>
+
         </div>
       </section>
     </>

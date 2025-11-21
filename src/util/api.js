@@ -4,20 +4,31 @@ import axios from "axios";
 // Set base URL from environment
 const API = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 10000, // ⏱️ Optional: timeout 10s
+  timeout: 20000, // ⏱️ Optional: timeout 10s
 
 });
 
 API.interceptors.request.use(config => {
-  if (config.url === '/api/user/signup') {
-    return config; // មិនបន្ថែម Authorization header នៅ signup
+  const publicPaths = [
+    "/api/user/signup",
+    "/user/authWithGoogle",
+    "/api/user/authWithGoogle", // optional
+  ];
+
+  if (publicPaths.includes(config.url)) {
+    return config; 
   }
+
   const token = localStorage.getItem("token");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
+
+
 
 // GET
 export const getData = async (url) => {

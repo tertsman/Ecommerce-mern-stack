@@ -29,7 +29,7 @@
 // const  fetchCart = async () => {
 //       const user = JSON.parse(localStorage.getItem("user"));
 //       if (!user) return;
-//       const res = await getData(`/cart/user/${user.userId}`); // <-- your backend route
+//       const res = await getData(`/cart/user/${user._id}`); // <-- your backend route
 //       setCartData(res);
 //     };
 
@@ -129,7 +129,7 @@
 // const payload = {
 //     tran_id: "T" + new Date().getTime(),
 //     amount: cartTotal,
-//     userId:user?.userId,
+//     _id:user?._id,
 //     address: {
 //       name: formField.firstName + " " + formField.lastName,
 //       phone: formField.phone,
@@ -453,7 +453,7 @@
 //         const payload = {
 //           tran_id: paymentResult.paymentIntent.id,
 //           amount: cartTotalCents / 100,
-//           userId: user?.userId,
+//           _id: user?._id,
 //           address: {
 //             name: formField.firstName + " " + formField.lastName,
 //             phone: formField.phone,
@@ -517,7 +517,7 @@
 //   const fetchCart = async () => {
 //     const user = JSON.parse(localStorage.getItem("user"));
 //     if (!user) return;
-//     const res = await getData(`/cart/user/${user.userId}`);
+//     const res = await getData(`/cart/user/${user._id}`);
 //     setCartData(res);
 //   };
 
@@ -751,6 +751,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { useNavigate } from "react-router-dom";
 
 const stripePromise = loadStripe(
   "pk_test_51RqQpDPfKB5g48gSAA5ty1FDiwE2UY0Vd2OAjfhzFtIAFrFPgdFeZoGNwRCztp2lWTkZXX9Hd5XPx4Y1PwOb3QRe00CK6zp29B"
@@ -1027,11 +1028,24 @@ const CheckoutForm = ({ formField, cartData, onSuccess, context }) => {
           text: "Payment successful!",
         });
 
+        if (!formField.country) {
+  context.setMessage({
+    open: true,
+    type: "error",
+    text: "សូមជ្រើសប្រទេស!",
+  });
+  setLoading(false);
+  return;
+}
+
+
+
         const user = JSON.parse(localStorage.getItem("user"));
         const payload = {
           tran_id: paymentResult.paymentIntent.id,
           amount: cartTotalCents / 100,
-          userId: user?.userId,
+          // _id: user?._id,
+          userId: user._id,
           address: {
             name: `${formField.firstName} ${formField.lastName}`,
             phone: formField.phone,
@@ -1046,7 +1060,7 @@ const CheckoutForm = ({ formField, cartData, onSuccess, context }) => {
         };
 
         await APIpostData("/order/create", payload);
-        onSuccess();
+       await onSuccess();
         context.setMessage({
           open: true,
           type: "success",
@@ -1063,7 +1077,7 @@ const CheckoutForm = ({ formField, cartData, onSuccess, context }) => {
     }
     setLoading(false);
   };
-
+ const navigate = useNavigate()
   return (
     <form onSubmit={handleSubmit}>
       <CardElement options={CARD_ELEMENT_OPTIONS} />
@@ -1082,6 +1096,7 @@ const CheckoutForm = ({ formField, cartData, onSuccess, context }) => {
 };
 
 const CheckoutPage = () => {
+  const navigate = useNavigate()
   const context = useContext(MyContext);
   const [formField, setFormField] = useState({
     firstName: "",
@@ -1098,7 +1113,7 @@ const CheckoutPage = () => {
   const fetchCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return;
-    const res = await getData(`/cart/user/${user.userId}`);
+    const res = await getData(`/cart/user/${user._id}`);
     setCartData(res);
     console.log("cartd",res)
   };
@@ -1113,16 +1128,16 @@ const CheckoutPage = () => {
     setFormField({ ...formField, [e.target.name]: e.target.value });
   };
 
-  const clearUserCart = async (userId) => {
+  const clearUserCart = async (_id) => {
   try {
-    await deleteData(`/cart/user/${userId}`);
+    await deleteData(`/cart/user/${_id}`);
     // បង្ហាញ message ឬ update state
   } catch (error) {
     console.error("Failed to clear cart", error);
   }
 };
 
-  const onPaymentSuccess = () => {
+  const onPaymentSuccess = async () => {
     setFormField({
       firstName: "",
       lastName: "",
@@ -1140,11 +1155,13 @@ const CheckoutPage = () => {
       text: "Order placed successfully!",
     });
     const user = JSON.parse(localStorage.getItem("user"));
-  if(user?.userId) {
-    clearUserCart(user.userId);
+  if(user?._id) {
+    await clearUserCart(user._id);
   }
   fetchCart();
-  context.fetchCart();
+  context.setCartVersion(prev => prev + 1);
+  navigate('/')
+
   };
 
   return (

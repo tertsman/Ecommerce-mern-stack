@@ -44,7 +44,7 @@ const Sidebar = (props) => {
                 {
                   subCate?.map((item,index)=>(
 
-                <li key={index}>
+                <li key={index} onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox onClick={()=> filterBycategory(item._id)} />}
@@ -62,14 +62,14 @@ const Sidebar = (props) => {
             <h6>PRODUCT STATUS</h6>
             <div className="scroll">
               <ul>
-                <li>
+                <li onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
                     label="In Stock"
                   />
                 </li>
-                <li>
+                <li onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
@@ -83,7 +83,7 @@ const Sidebar = (props) => {
             <h6>BRANDS</h6>
             <div className="scroll">
               <ul>
-                <li className="d-flex align-content-center">
+                <li className="d-flex align-content-center" onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
@@ -91,7 +91,7 @@ const Sidebar = (props) => {
                   />
                   <span>(9)</span>
                 </li>
-                <li className="d-flex align-content-center">
+                <li className="d-flex align-content-center" onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
@@ -99,7 +99,7 @@ const Sidebar = (props) => {
                   />
                   <span>(9)</span>
                 </li>
-                <li className="d-flex align-content-center">
+                <li className="d-flex align-content-center " onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
@@ -107,7 +107,7 @@ const Sidebar = (props) => {
                   />
                   <span>(9)</span>
                 </li>
-                <li className="d-flex align-content-center">
+                <li className="d-flex align-content-center" onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}
@@ -115,7 +115,7 @@ const Sidebar = (props) => {
                   />
                   <span>(9)</span>
                 </li>
-                <li className="d-flex align-content-center">
+                <li className="d-flex align-content-center" onClick={props.close}>
                   <FormControlLabel
                     className="w-100"
                     control={<Checkbox />}

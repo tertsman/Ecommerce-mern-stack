@@ -14,7 +14,7 @@ const OrderPage = () => {
   const getOrder = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return;
-    const res = await getData(`/order/user/${user.userId}`); // <-- your backend route
+    const res = await getData(`/order/user/${user._id}`); // <-- your backend route
     setOrderDate(res);
     
   };

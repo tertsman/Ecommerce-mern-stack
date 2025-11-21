@@ -117,7 +117,7 @@ const SingleProduct = () => {
       price: product?.price,
       subTotal: parseInt(product?.price * productQuantity),
       productId: product?._id,
-      userId: user.userId,
+      _id: user._id,
     };
 
     context.addToCart(cartFields);
@@ -168,7 +168,7 @@ const SingleProduct = () => {
           rating: product.rating,
           price: product.price,
           productId: product.id,
-          userId: user?.userId, // អ្នកត្រូវមាន user login រួច
+          _id: user?._id, // អ្នកត្រូវមាន user login រួច
         })
     
         console.log("wishlist",res)
@@ -200,7 +200,7 @@ const SingleProduct = () => {
 
       formdata.append("productId", id);
       formdata.append("customerName", user?.name);
-      formdata.append("customerId", user?.userId);
+      formdata.append("customerId", user?._id);
       formdata.append("review", reviewField?.review);
       formdata.append("customerRating", reviewField?.customerRating);
       

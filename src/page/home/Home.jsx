@@ -244,7 +244,7 @@ const Home = () => {
                         className="banner"
                         key={index}
                       >
-                        <img src={item.image} alt="" className="cursor" />
+                        <img src={item.image} alt="" className="cursor border border-red-200 overflow-hidden" />
                       </motion.div>
                     );
                   })}

@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { MyContext } from "../../App";
-import logo from "../../assets/image/bacola-logo.png";
 import google from "../../assets/image/Google-Symbol.png";
 import {
   FormControl,
@@ -14,8 +13,16 @@ import { Snackbar, Alert } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-import { postData } from "../../util/api";
+import { APIpostData, postData } from "../../util/api";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+
+import { firebaseApp } from "../../firebase";
+
+const auth = getAuth(firebaseApp);
+const googleProvider = new GoogleAuthProvider()
+
 const SignIn = () => {
   const context = useContext(MyContext);
 
@@ -86,7 +93,7 @@ const [formFields, setFormFields] = useState({
       const user={
         name:res.user?.name,
         email:res.user?.email,
-        userId:res.user?._id
+        _id:res.user?._id
       }
       localStorage.setItem("user",JSON.stringify(user))
   
@@ -108,6 +115,40 @@ const [formFields, setFormFields] = useState({
       }
     };
 
+    // sing with google 
+    const signInWithGoogle =  () => {
+      signInWithPopup(auth,googleProvider)
+      .then((result) =>{
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken; 
+        const user = result.user;
+        const fields = {
+          name:user.providerData[0].displayName,
+          email:user.providerData[0].email,
+          password:null,
+          phone:user.providerData[0].phoneNumber,
+          isAdmin:false
+        }
+        APIpostData("user/authWithGoogle",fields).then((res)=>{
+          setMessage({
+          open: true,
+          type: "success",
+          text: res.msg || "user Authenticated!"
+        });
+        localStorage.setItem("token", res.token);  // <=== ផ្ទុក JWT token មកពី backend
+        localStorage.setItem("user", JSON.stringify(res.user)); 
+        navigate("/");
+
+        })
+
+
+
+      })
+    }
+    
+// end signin with google
+
+
   return (
     <section className="section signInPage">
 
@@ -127,9 +168,14 @@ const [formFields, setFormFields] = useState({
                 </Snackbar>
       <div className="container">
         <div className="box card shadow">
-          <div className="text-center imageWrapper">
-            <img src={logo} alt="" className="w-100" />
-          </div>
+          <div className="logoWrapper text-center ">
+                        <Link to={"/"}>
+                         <div className="logo">
+                            eco<span>Shop</span>
+                          </div>
+                        </Link>
+                        <p>Please Login with an account!</p>
+                      </div>
           <form onSubmit={SignIn}>
             <h2>Sign In</h2>
             <div className="form-group">
@@ -191,7 +237,7 @@ const [formFields, setFormFields] = useState({
             <p className="mt-3">Not Registered? <a href="/signup">Sig Up</a> </p>
             
             <h3 className="text-center ">OR Sign up with google</h3>
-            <Button variant="outlined" className="w-100 mt-2">
+            <Button variant="outlined" className="w-100 mt-2" onClick={signInWithGoogle}>
               <img src={google} className="gooleimage" />
               <span>Sign In With Google</span>
             </Button>

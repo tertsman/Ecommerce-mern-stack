@@ -9,10 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { APIpostData, getData } from "../../util/api";
 import { MyContext } from "../../App";
 import { IoIosHeart } from "react-icons/io";
-import {motion} from "framer-motion"
-
-
-
+import { motion } from "framer-motion";
 
 const Product = ({ item, itemView }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -31,14 +28,14 @@ const Product = ({ item, itemView }) => {
 
   useEffect(() => {
     getWishlist();
-  },[]);
+  }, []);
 
   const getWishlist = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return;
 
     try {
-      const res = await getData(`/wishlist/user/${user.userId}`);
+      const res = await getData(`/wishlist/user/${user._id}`);
 
       // ✅ Because res is array
       const productIds = res.map((item) => item.productId);
@@ -62,7 +59,7 @@ const Product = ({ item, itemView }) => {
         rating: item.rating,
         price: item.price,
         productId: item.id,
-        userId: user?.userId, 
+        _id: user?._id,
       });
 
       setWishlistItems((prev) => [...prev, item.id]);
@@ -71,7 +68,7 @@ const Product = ({ item, itemView }) => {
         type: "success",
         text: "product add to your wishlist.!",
       });
-      getWishlist()
+      getWishlist();
     } catch (error) {
       if (error.status == 401) {
         context.setMessage({
@@ -86,10 +83,11 @@ const Product = ({ item, itemView }) => {
   return (
     <>
       <motion.div
-      initial={{opacity:0,translateY:"50%"}}
-      whileInView={{opacity:1,translateY:0}}
-      transition={{duration:2}}
-      className={`productItem ${itemView}`}>
+        initial={{ opacity: 0, translateY: "50%" }}
+        whileInView={{ opacity: 1, translateY: 0 }}
+        transition={{ duration: 2 }}
+        className={`productItem ${itemView}`}
+      >
         <div className="imgWrapper">
           <img src={item.images} alt={item.name} className="w-100" />
 
@@ -98,14 +96,22 @@ const Product = ({ item, itemView }) => {
             <Button onClick={() => ViewProductDetails(item.id)}>
               <AiOutlineFullscreen />
             </Button>
-            <Button onClick={()=>addToWishlist(item)} className={wishlistItems.includes(item.id) ? "active-wishlist" : ""}>
-              {
-                wishlistItems.includes(item.id) ? <><IoIosHeart color="red" /></>:<><IoIosHeart /></>
+            <Button
+              onClick={() => addToWishlist(item)}
+              className={
+                wishlistItems.includes(item.id) ? "active-wishlist" : ""
               }
-             
+            >
+              {wishlistItems.includes(item.id) ? (
+                <>
+                  <IoIosHeart color="red" />
+                </>
+              ) : (
+                <>
+                  <IoIosHeart />
+                </>
+              )}
             </Button>
-
-            
           </div>
         </div>
         <div className="title">

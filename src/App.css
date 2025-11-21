@@ -318,6 +318,9 @@ a{
   .mobileHeader {
     display: none;
   }
+  .mobileLeft{
+    display: none;
+  }
 }
 
 .mobileHeader{
@@ -1115,7 +1118,7 @@ nav .navPart2 ul li:hover .submenu {
 .sticky{
   position: sticky;
   top: 10px;
-  z-index: 100;
+  z-index: 90;
 }
 
 
@@ -1751,7 +1754,7 @@ footer .topInfo{
   padding: 35px 0;
  }
 
- .product_listing_Page .productListing .sidebar .sticky{
+ .product_listing_Page .productListing .sideBarFilter .sidebar .sticky{
   position: sticky;
   top: 20px;
   z-index: 1;
@@ -1781,7 +1784,6 @@ footer .topInfo{
  }
  .product_listing_Page .productListing .sidebar .scroll ul li {
   list-style: none;
-  /* margin-bottom: 10px; */
   width: 100%;
  }
 
@@ -1790,12 +1792,8 @@ footer .topInfo{
 }
 
 
- .product_listing_Page .productListing .content_right{
-  /* width: 80%;
-  flex: 0 0 80%; */
-  /* padding-left:  35px; */
 
- }
+
 
  .fillterBox .h6{
   margin-bottom: 50px !important;
@@ -1839,6 +1837,144 @@ footer .topInfo{
    padding-top: 50px;
    cursor: pointer;
  }
+
+ .product_listing_Page  .mobileFilter {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 280px ;
+  background-color: white !important;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px ;
+  height: 100vh;
+  overflow-y: scroll;
+  left: -100%;
+  transition: all .3s ease;
+  
+ }
+ .product_listing_Page  .mobileFilter.open{
+  left: 0;
+ }
+ .product_listing_Page  .mobileFilter ul{
+  list-style: none;
+  padding: 0;
+ }
+
+  .product_listing_Page  .mobileFilter::-webkit-scrollbar{
+    width: 3px !important;
+  }
+
+
+
+
+.product_listing_Page  .mobileFilter::-webkit-scrollbar-thumb {
+  background-color: #2bbef0;
+  border-radius: 5px;
+}
+
+
+
+.product_listing_Page  .mobileFilter::-webkit-scrollbar-track {
+  background: transparent;
+
+}
+
+ .mobileFilterHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+ }
+ .mobileFilterHead h2{
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2;
+  background-color: white;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 10px;
+  color: rgb(72, 72, 72);
+ }
+ .mobileFilterHead .close-btn{
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(248, 248, 248);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgb(72, 72, 72);
+  border-radius: 50%;
+  cursor: pointer;
+ }
+
+ .mobileFilterHead .close-btn:hover{
+  background-color: #eee;
+ }
+
+ .product_listing_Page .overlay{
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background-color: #00000075;
+  top: 0;
+  z-index: 99;
+  transition: all .4s ease;
+}
+.product_listing_Page .overlay.open{
+  display: block;
+}
+
+ .openFilter{
+  padding: 5px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  color: rgb(72, 72, 72);
+  background-color: rgb(240, 240, 240);
+  cursor: pointer;
+
+ }
+ .openFilter:hover{
+  background-color: #dedede;
+ }
+
+ @media only screen and (min-width: 900px) {
+  
+  /* .banner-thumbnail .content-main{
+    padding-top: 20px;
+    font-size: 15px;
+    border: 1px solid;
+  } */
+  .openFilter{
+    display: none;
+  }
+}
+
+ @media only screen and (max-width: 900px) {
+  
+  .banner-thumbnail .content-main{
+    padding-top: 20px;
+    font-size: 15px;
+    /* border: 1px solid; */
+  }
+  .product_listing_Page .productListing .sideBarFilter .sidebar{
+    display: none;
+  }
+
+
+
+}
+ 
 
  .banner-thumbnail .content-main h4{
   font-weight: 300;
@@ -2303,15 +2439,6 @@ sing in
   /* gap: 10px; */
 }
 
-/* .newProductGrid .productItem{
-  width: 200px;
-} */
-
-/* .newProductGrid .productItem .imageWrapper{
-  width: 100% !important;
-  overflow: hidden;
-  height: 100px !important;
-} */
 
 
 @media only screen and (min-width: 430px) {
@@ -2323,4 +2450,17 @@ sing in
   .newProductGrid .productItem{
   width: 100% !important;
 }
+}
+
+
+.myAccount .MuiTab-root {
+  font-weight: 600 !important;
+  text-transform: capitalize;
+}
+.tabsBox{
+  padding: 20px;
+}
+
+.myAccount .addcart{
+ width: 120px !important;
 }

@@ -23,7 +23,7 @@ const CartPage = () => {
   const  fetchCart = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return;
-      const res = await getData(`/cart/user/${user.userId}`); // <-- your backend route
+      const res = await getData(`/cart/user/${user._id}`); // <-- your backend route
       setCartData(res);
       console.log("cartlist", res);
     };
@@ -69,7 +69,7 @@ const removeItem = async (id)=>{
         text: res.message,
       });
       fetchCart();
-      context.fetchCart();
+      context.setCartVersion(prev => prev + 1);
   } catch (error) {
      setMessage({
         open: true,

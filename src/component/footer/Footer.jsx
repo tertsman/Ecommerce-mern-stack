@@ -170,7 +170,7 @@ const Footer = () => {
 
             <div className="site-copy">
                 <div className="site-copy-right">
-                    <p>Coppy right 2025 &copy;Bacola WordPress Theme. All rights reserved. Powered by TertCodding.</p>
+                    <p>Coppy right 2025 &copy; ecoShop  All rights reserved. Powered by TertCodding.</p>
                 </div>
                 <div className="site-privacy">
                     <ul>

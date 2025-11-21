@@ -21,7 +21,7 @@ const WishListPage = () => {
   const  getWishlist = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return;
-      const res = await getData(`/wishlist/user/${user.userId}`); // <-- your backend route
+      const res = await getData(`/wishlist/user/${user._id}`); // <-- your backend route
       setMyList(res);
     };
   const [message, setMessage] = useState({ open: false, type: "", text: "" });
